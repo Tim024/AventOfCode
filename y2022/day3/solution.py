@@ -1,4 +1,4 @@
-from ..utils import read_data
+from adventofcode.y2022.utils import read_data
 
 ITEMS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -9,6 +9,7 @@ def priority(item):
 
 if __name__ == "__main__":
     sacks = read_data(3, example=False)
+
     # Part 1
     priorities = []
     for sack in sacks:
