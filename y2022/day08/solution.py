@@ -60,24 +60,18 @@ def check_visibility_bottom(grid, row, col, val):
 
 def check_visibility(grid, row, col):
     val = int(grid[row][col])
-    return (
+    return 1 if (
             check_visibility_left(grid, row, col, val)
             or check_visibility_right(grid, row, col, val)
             or check_visibility_top(grid, row, col, val)
             or check_visibility_bottom(grid, row, col, val)
-    )
+    ) else 0
 
 
 class Solution(AbstractSolution):
     def parse(self, puzzle_input: list[str]) -> None:
         self.forest = puzzle_input
-        self.visibility = [[0 for _ in range(len(self.forest[0]))] for _ in range(len(self.forest))]
-
-        for row in range(len(self.forest)):
-            for col in range(len(self.forest[0])):
-                if check_visibility(self.forest, row, col):
-                    self.visibility[row][col] = 1
-                    visibility_grid_has_changed = True
+        self.visibility = [[check_visibility(self.forest, i, j) for j in range(len(self.forest[0]))] for i in range(len(self.forest))]
 
     def part1(self) -> str:
         return f"The sum of all visible trees is {sum([sum(row) for row in self.visibility])}"

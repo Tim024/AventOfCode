@@ -1,6 +1,6 @@
-from adventofcode.y2022.day08.solution import Solution
+from adventofcode.y2022.day09.solution import Solution
 
 if __name__ == "__main__":
     s = Solution(example=False)
-    print(f"## Part 1:\n{s.part1()}")
-    print(f"## Part 2:\n{s.part2()}")
+    print(f"Part 1:\n{s.part1()}")
+    print(f"Part 2:\n{s.part2()}")
