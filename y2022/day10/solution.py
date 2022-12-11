@@ -34,7 +34,7 @@ class Solution(AbstractSolution):
                 break
 
     def part1(self) -> str:
-        return f"The signal strength are {self.signal_strengths}. The sum is {sum(self.signal_strengths.values())}"
+        return f"The signal strengths are {self.signal_strengths}. The sum is {sum(self.signal_strengths.values())}."
 
     def part2(self) -> str:
         pixels = ""
@@ -42,7 +42,7 @@ class Solution(AbstractSolution):
         X = 1
         for cycle in range(1, 240):
             if cycle % 40 - 2 <= X <= cycle % 40:
-                pixels += "X"
+                pixels += "#"
             else:
                 pixels += " "
 
