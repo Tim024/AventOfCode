@@ -13,38 +13,59 @@ class Solution(AbstractSolution):
             self.flows[v] = f
             self.graph[v] = o
 
-    # def queue_score(self, queue):
-    #     unique_valves = set()
-    #     score = 0
-    #     minutes = 0
-    #     output = ""
-    #     for v in queue:
-    #         output += f"You move to valve {v}.\n"
-    #         minutes += 1
-    #         output += f"== Minute {minutes} ==\n"
-    #         if v not in unique_valves and self.flows[v] > 0:
-    #             unique_valves.add(v)
-    #             output += f"You open valve {v}.\n"
-    #             minutes += 1
-    #             output += f"== Minute {minutes} ==\n"
-    #             score += self.flows[v] * (30 - minutes)
-    #             # print(f"Opened {v}. Adding flow {self.flows[v]}*(30 - {minutes})={self.flows[v] * (30 - minutes)} to score at minute {minutes}")
-    #         output += f"Valves {unique_valves} are opened, releasing {sum([self.flows[v] for v in unique_valves])}.\n"
-    #     print(output)
-    #     return score
+        self.distances = {v: {} for v in self.graph.keys()}
+        for v in self.graph.keys():
+            self.compute_distances(v, v)
 
-    def explore(self, state):
-        pass
+        if self.example:
+            print(f"Flow rates: {self.flows}")
+            print(f"Graph: {self.graph}")
+            print(f"Distances: {self.distances}")
 
+    def compute_distances(self, valve, current_valve, visited=None, distance=0):
+        if visited is None:
+            visited = []
+        visited.append(current_valve)
+        for v in self.graph[current_valve]:
+            if v not in visited:
+                if v in self.distances[valve].keys():
+                    self.distances[valve][v] = min(distance + 1, self.distances[valve][v])
+                else:
+                    self.distances[valve][v] = distance + 1
+                self.compute_distances(valve, v, visited + [v], distance + 1)
+
+    def _compute_options(self, valve, opened_valves):
+        options = {nb: dist for nb, dist in self.distances[valve].items() if nb not in opened_valves}
+        return options
+
+    def explore(self, valve, time_left, opened_valves, flow):
+        options = self._compute_options(valve, opened_valves)
+        new_flow = flow
+        max_flow = new_flow
+        # Open valve VALVE if not opened and not 0
+        if valve not in opened_valves and self.flows[valve] != 0:
+            time_left -= 1
+            new_flow += self.flows[valve] * time_left
+            opened_valves.append(valve)
+        # For each other unopened valve
+        for nb, dist in options.items():
+            if nb not in opened_valves and self.flows[nb] != 0:
+                time_left_for_option = time_left - dist
+                if time_left_for_option > 0:
+                    path_flow = self.explore(nb, time_left_for_option, opened_valves.copy(), new_flow)
+                    max_flow = max(max_flow, path_flow)
+        max_flow = max(max_flow, new_flow)
+        return max_flow
+
+    def explore_with_elephant(self):
+        return 0
 
     def part1(self) -> str:
-        queue = []
-        self.seen_stats = []
-        # self.explore('AA', queue)
-        # self.explore('BB', queue)
-        # print(out)
-        # print(paths)
-        return "I give up"
+        time_left = 30
+        max_flow = self.explore('AA', time_left, [], 0)
+        return f"The maximum flow is {max_flow} when starting from 'AA'."
 
     def part2(self) -> str:
-        return "I give up"
+        time_left = 26
+        max_flow = self.explore_with_elephant()
+        return f"The maximum flow is {max_flow}."
