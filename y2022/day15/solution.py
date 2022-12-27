@@ -59,7 +59,7 @@ class Solution(AbstractSolution):
         count = 0
         for r in b.ranges:
             count += r[1] - r[0] + 1
-            count -= len([xi for xi in sensor_and_beacon_xs if xi >= r[0] and xi <= r[1]])
+            count -= len([xi for xi in sensor_and_beacon_xs if r[0] <= xi <= r[1]])
         return f"The number of points that can be reached is {count}"
 
     def part2(self) -> str:
@@ -73,6 +73,6 @@ class Solution(AbstractSolution):
                 spots -= b - a + 1
             if spots == 1:
                 for x in range(0, lim):
-                    if x not in sensor_and_beacon_xs and not any([x >= r[0] and x <= r[1] for r in br.ranges]):
+                    if x not in sensor_and_beacon_xs and not any([r[0] <= x <= r[1] for r in br.ranges]):
                         return f"The location of the only point that can be reached is {x}, {y}. Frequency = {x * 4000000 + y}"
         return ""

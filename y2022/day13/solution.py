@@ -63,8 +63,6 @@ class Solution(AbstractSolution):
             self.all_lines.append(pair[0])
             self.all_lines.append(pair[1])
 
-        print(self.all_lines)
-
         def sorting_function(l1, l2):
             return 1 if compare(l1, l2) == "right" else -1
 
