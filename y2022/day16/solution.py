@@ -1,77 +1,5 @@
 from adventofcode.utils import AbstractSolution, parse_puzzle_input
 
-
-class Status:
-    def __init__(self, flows, open_valves=None, total=0):
-        if open_valves is None:
-            open_valves = set()
-        self.open_valves = open_valves
-        self.total = total
-        self.flows = flows
-
-    def current_flow(self):
-        return sum(self.flows[k] for k in self.open_valves)
-
-    def new_status(self, new_valve, open_valve=True):
-        s = Status(self.flows, self.open_valves.copy(), self.total)
-        if open_valve:
-            # print(f"Opening valve {new_valve}")
-            s.open_valves.add(new_valve)
-        s.total += self.current_flow()
-        return s
-
-    def __eq__(self, other):
-        return self.open_valves == other.open_valves
-
-    def __hash__(self):
-        v = list(self.open_valves)
-        v.sort()
-        return hash(str(v))
-
-    def __str__(self):
-        v = list(self.open_valves)
-        v.sort()
-        return f"S[{v},{self.total},{self.current_flow()}]"
-
-    def __repr__(self):
-        return self.__str__()
-
-
-def next_minute(statuses, graph, all_valves):
-    new_statuses = [None for _ in all_valves]
-    for i, old_status_list in enumerate(statuses):
-        if not old_status_list:
-            continue
-        v = all_valves[i]
-        # print(f"On {v} {i}")
-        for v_dest in graph[v]:
-            # print(f"Going to {v_dest}")
-            status_list = set()
-            for stat in old_status_list:
-                # Open valve if not open
-                #     ns = stat.new_status(v_dest, open_valve=True)
-                #     status_list.add(ns)
-                # if v_dest not in stat.open_valves:
-                ns = stat.new_status(v_dest, open_valve=False)
-                if len(ns.open_valves) > 0:
-                    status_list.add(ns)
-
-            # Add all options to new status
-            idx = all_valves.index(v_dest)
-            # print(f"Adding {status_list} to {idx} Old new_statuses[idx]: {new_statuses[idx]}")
-            if new_statuses[idx] is None:
-                new_statuses[idx] = status_list
-            else:
-                new_statuses[idx] = new_statuses[idx].union(status_list)
-            # print(f"Result: {new_statuses[idx]}")
-        # Open valve if stay on same node
-        if new_statuses[i] is None:
-            new_statuses[i] = set([s.new_status(v, open_valve=True) for s in old_status_list])
-        else:
-            new_statuses[i] = new_statuses[i].union(set([s.new_status(v, open_valve=True) for s in old_status_list]))
-    return new_statuses
-
-
 class Solution(AbstractSolution):
     def parse(self, puzzle_input: str) -> None:
         lines = parse_puzzle_input(puzzle_input)
@@ -87,6 +15,8 @@ class Solution(AbstractSolution):
         self.distances = {v: {} for v in self.graph.keys()}
         for v in self.graph.keys():
             self.compute_distances(v, v)
+
+        self.cache = {t:() for t in range(44)}
 
         if self.example:
             print(f"Flow rates: {self.flows}")
@@ -109,45 +39,47 @@ class Solution(AbstractSolution):
         options = {nb: dist for nb, dist in self.distances[valve].items() if nb not in opened_valves}
         return options
 
-    def explore(self, valve, time_left, opened_valves, flow):
+    def explore(self, valve, time_left, opened_valves, flow, authorized_valves=None):
+        key = (valve, tuple(opened_valves))
+        if key in self.cache[time_left]:
+            return self.cache[time_left][key]
+
         options = self._compute_options(valve, opened_valves)
         new_flow = flow
         max_flow = new_flow
         # Open valve VALVE if not opened and not 0
-        if valve not in opened_valves and self.flows[valve] != 0:
+        if valve not in opened_valves and self.flows[valve] != 0 and (authorized_valves is None or valve in authorized_valves):
             time_left -= 1
             new_flow += self.flows[valve] * time_left
             opened_valves.append(valve)
         # For each other unopened valve
         for nb, dist in options.items():
-            if nb not in opened_valves and self.flows[nb] != 0:
+            if nb not in opened_valves and self.flows[nb] != 0 and (authorized_valves is None or nb in authorized_valves):
                 time_left_for_option = time_left - dist
                 if time_left_for_option > 0:
-                    path_flow = self.explore(nb, time_left_for_option, opened_valves.copy(), new_flow)
+                    path_flow = self.explore(nb, time_left_for_option, opened_valves.copy(), new_flow, authorized_valves=authorized_valves)
                     max_flow = max(max_flow, path_flow)
         max_flow = max(max_flow, new_flow)
         return max_flow
 
     def part1(self) -> str:
-        # return "Done."
-        # Old method
-        # time_left = 30
-        # max_flow = self.explore('AA', time_left, [], 0)
-        all_valves = list(self.graph.keys())
-        all_valves.sort()
-        statuses = [None for v2 in all_valves]
-        for v in self.graph['AA']:
-            statuses[0] = set([Status(self.flows)])
-        for t in range(30):
-            statuses = next_minute(statuses, self.graph, all_valves)
-            print(statuses)
-            # input()
-        statuses = next_minute(statuses, self.graph, all_valves)
-        max_flow = max(max(k.total for k in s) for s in statuses if s)
-
+        time_left = 30
+        max_flow = self.explore('AA', time_left, [], 0)
         return f"The maximum flow is {max_flow} when starting from 'AA'."
 
     def part2(self) -> str:
         max_flow = 0
-
+        time_left = 26
+        import itertools
+        import numpy as np
+        all_valves = list(k for k in self.flows.keys() if self.flows[k] != 0)
+        authorized_valves = [list(c) for i in range(len(all_valves) -1) for c in itertools.combinations(all_valves, i + 1)]
+        authorized_valves = np.array(authorized_valves)
+        np.random.shuffle(authorized_valves)
+        for a in authorized_valves:
+            human_valves = a
+            elephant_valves = [v for v in all_valves if v not in human_valves]
+            flow = self.explore('AA', time_left, [], 0, human_valves) + self.explore('AA', time_left, [], 0, elephant_valves)
+            max_flow = max(max_flow, flow)
+            # print(f"Max flow with {human_valves} and {elephant_valves} is {flow} {max_flow}")
         return f"The maximum flow is {max_flow}."

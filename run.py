@@ -1,4 +1,4 @@
-from adventofcode.y2022.day19.solution import Solution
+from adventofcode.y2022.day16.solution import Solution
 
 if __name__ == "__main__":
     s = Solution(example=False)
