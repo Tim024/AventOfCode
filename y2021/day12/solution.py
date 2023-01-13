@@ -31,12 +31,12 @@ class Solution(AbstractSolution):
             self.explore(nb, explored.copy(), part1=part1)
 
     def part1(self) -> str:
-        self.explore('start',[], part1=True)
+        self.explore('start', [], part1=True)
         return f"Found {len(self.all_paths)} paths."
 
     def part2(self) -> str:
         self.all_paths = []
-        self.explore('start',[], part1=False)
+        self.explore('start', [], part1=False)
         # ap = sorted(self.all_paths)
         # for a in ap:
         #     print(a)
