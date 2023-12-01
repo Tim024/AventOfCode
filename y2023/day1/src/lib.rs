@@ -1,11 +1,11 @@
 use utils::read_data_lines;
 
-// fn parse_digits(t_num: &str) -> Vec<u32> {
-//     t_num
-//         .chars()
-//         .filter_map(|a| a.to_digit(10))
-//         .collect()
-// }
+fn parse_digits(t_num: &str) -> Vec<u32> {
+    t_num
+        .chars()
+        .filter_map(|a| a.to_digit(10))
+        .collect()
+}
 
 fn parse_written_digits_and_digits(line: &str) -> Vec<u32> {
     let mut digits = Vec::new();
@@ -40,8 +40,25 @@ fn parse_written_digits_and_digits(line: &str) -> Vec<u32> {
     digits
 }
 
-fn main() {
-    let lines = read_data_lines("./day1/src/data.input");
+pub fn part1() -> String{
+    let lines = read_data_lines("./src/data.input");
+    
+    let mut sum = 0;
+    for line in lines {
+        let digits = parse_digits(&line);
+        let first_digit = digits.first().unwrap();
+        let last_digit = digits.last().unwrap();
+        let number = first_digit*10 + last_digit;
+        // dbg!(line, digits, number);
+        sum += number;
+    }
+
+    return sum.to_string()
+}
+
+pub fn part2() -> String{
+    let lines = read_data_lines("./src/data.input");
+    // let lines = input.lines();
     
     let mut sum = 0;
     for line in lines {
@@ -52,5 +69,6 @@ fn main() {
         println!("{line} -> {digits:?} -> {number}");
         sum += number;
     }
-    println!("Sum: {}", sum);
+    
+    return sum.to_string()
 }
