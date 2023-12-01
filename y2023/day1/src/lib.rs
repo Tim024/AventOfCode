@@ -41,7 +41,7 @@ fn parse_written_digits_and_digits(line: &str) -> Vec<u32> {
 }
 
 pub fn part1() -> String{
-    let lines = read_data_lines("./src/data.input");
+    let lines = read_data_lines("./day1/src/data.input");
     
     let mut sum = 0;
     for line in lines {
@@ -57,7 +57,7 @@ pub fn part1() -> String{
 }
 
 pub fn part2() -> String{
-    let lines = read_data_lines("./src/data.input");
+    let lines = read_data_lines("./day1/src/data.input");
     // let lines = input.lines();
     
     let mut sum = 0;
@@ -66,7 +66,7 @@ pub fn part2() -> String{
         let first_digit = digits.first().unwrap();
         let last_digit = digits.last().unwrap();
         let number = first_digit*10 + last_digit;
-        println!("{line} -> {digits:?} -> {number}");
+        // println!("{line} -> {digits:?} -> {number}");
         sum += number;
     }
     
