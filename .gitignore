@@ -1,3 +1,5 @@
 #*.input
 script_*
 __pycache__*
+
+target
