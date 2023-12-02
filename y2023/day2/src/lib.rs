@@ -16,13 +16,7 @@ fn parse_game(line: &str) -> HashMap<String, u32>{
             let amount:u32 = l6[0].parse().unwrap();
             let color = l6[1].to_string();
 
-            if game_hashmap.contains_key(&color) {
-                let current_amount = game_hashmap.get(&color).unwrap();
-                let max_amount = amount.max(*current_amount);
-                game_hashmap.insert(color, max_amount);
-            } else {
-                game_hashmap.insert(color, amount);
-            }
+            game_hashmap.entry(color).and_modify(|e| *e = (*e).max(amount)).or_insert(amount);
         }
     }
     game_hashmap
@@ -44,7 +38,7 @@ pub fn part1() -> String{
         let hashmap = parse_game(&g);
         // dbg!(&hashmap);
         for (color, amount) in hashmap {
-            if amount > *requirements.get(&color).unwrap() {
+            if amount > *requirements.get(&color).unwrap_or(&0) {
                 possible_game = false;
                 break;
             }
