@@ -14,3 +14,9 @@ pub fn read_data_lines(filepath: &str) -> Vec<String> {
     let lines: Vec<String> = content.lines().map(|s| s.to_string()).collect();
     lines
 }
+
+pub fn read_data_matrix(filepath: &str) -> Vec<Vec<char>> {
+    let content = read_data(filepath);
+    let lines: Vec<Vec<char>> = content.lines().map(|s| s.chars().collect()).collect();
+    lines
+}
