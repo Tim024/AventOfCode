@@ -30,7 +30,7 @@ pub fn part1() -> String{
                 let mut c2 = matrix[y][x];
                 let mut current_number: Vec<char> = Vec::new();
                 while c2.is_digit(10){
-                    current_number.push(c2.to_string().chars().next().unwrap());
+                    current_number.push(c2);
                     x += 1;
                     if x > siz_x - 1 {break}
                     c2 = matrix[y][x];
@@ -42,6 +42,13 @@ pub fn part1() -> String{
                 let x_r = if x + 1 == siz_x {x} else {x + 1};
                 let y_t = if y < 1 {0} else {y - 1};
                 let y_b = if y > siz_y - 2 {siz_y - 1} else {y + 1};
+                // Cleaner solution:
+                // let (x_l, x_r, y_t, y_b) = (
+                //     x.saturating_sub(siz), 
+                //     (x + 1).min(siz_x - 1),
+                //     y.saturating_sub(1),
+                //     (y + 1).min(siz_y - 1),
+                // );
     
                 // Add if valid
                 if symbol_in_window(&matrix, x_l, x_r, y_t, y_b, "/=%@-_!^(&)$+*#".to_string()) {
@@ -69,7 +76,7 @@ pub fn part2() -> String{
                 let mut c2 = matrix[y][x];
                 let mut current_number: Vec<char> = Vec::new();
                 while c2.is_digit(10){
-                    current_number.push(c2.to_string().chars().next().unwrap());
+                    current_number.push(c2);
                     x += 1;
                     if x > siz_x - 1 {break}
                     c2 = matrix[y][x];
