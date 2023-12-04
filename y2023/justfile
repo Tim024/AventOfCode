@@ -1,15 +1,27 @@
-run day part:
-    cargo run -p {{day}} --bin {{part}}
-create day:
-    cp -r ".template/" "{{day}}"
-    sed -i 's/dayXXX/{{day}}/g' {{day}}/Cargo.toml
-    sed -i 's/dayXXX/{{day}}/g' {{day}}/src/bin/part1.rs
-    sed -i 's/dayXXX/{{day}}/g' {{day}}/src/bin/part2.rs
-    sed -i '$ d' ./Cargo.toml
-    echo "    \"{{day}}\"," >> ./Cargo.toml
-    echo "    ]" >> ./Cargo.toml
-commit msg:
+# Prints the list of available commands
+default:
+    @just --list
+# Just run the day and part
+run DAY PART:
+    @cargo run -p {{DAY}} --bin {{PART}}
+# Create a new day from template
+create DAY:
+    @echo "Creating day {{DAY}}..."
+    @cp -r ".template/" "{{DAY}}"
+    @sed -i 's/dayXXX/{{DAY}}/g' {{DAY}}/Cargo.toml
+    @sed -i 's/dayXXX/{{DAY}}/g' {{DAY}}/src/bin/part1.rs
+    @sed -i 's/dayXXX/{{DAY}}/g' {{DAY}}/src/bin/part2.rs
+    @sed -i '$ d' ./Cargo.toml
+    @echo "    \"{{DAY}}\"," >> ./Cargo.toml
+    @echo "    ]" >> ./Cargo.toml
+    @echo "Done."
+# Commit and push with message
+commit MESSAGE:
     git add *
-    git commit -am "{{msg}}"
+    git commit -am "{{MESSAGE}}"
     git push
+# Test with message
+test MESSAGE:
+    git commit -am "{{MESSAGE}}"
+
 
