@@ -8,4 +8,8 @@ create day:
     sed -i '$ d' ./Cargo.toml
     echo "    \"{{day}}\"," >> ./Cargo.toml
     echo "    ]" >> ./Cargo.toml
+commit msg:
+    git add *
+    git commit -am "{{msg}}"
+    git push
 
