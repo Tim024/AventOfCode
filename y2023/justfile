@@ -17,10 +17,10 @@ create DAY:
     @echo "Done."
 # Commit and push with message
 commit MESSAGE:
-    -git add * 
-    sleep 0.5
+    -git add * # Minus to ignore exit code 1
+    @sleep 0.2
     git commit -am "{{MESSAGE}}"
-    sleep 0.5
+    @sleep 0.2
     git push
 
 
