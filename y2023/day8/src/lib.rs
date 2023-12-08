@@ -17,7 +17,7 @@ fn parse_elements(input: &str) -> Option<(String, String, String)> {
 
 fn parse_input() -> (String, HashMap<String, Node>) {
     println!("Building...");
-    let lines = read_data_lines("./day8/src/data.example");
+    let lines = read_data_lines("./day8/src/data.input");
 
     let instruction = lines.first().unwrap().clone();
     let mut nodes = HashMap::new();
@@ -74,42 +74,49 @@ pub fn part1() -> String {
     return step.to_string();
 }
 
-/**
- *
-L
-11A = (11B, XXX)
-11B = (11C, XXX)
-11C = (11D, XXX)
-11D = (11Z, XXX)
-11Z = (11A, XXX)
-12A = (12B, XXX)
-12B = (12Z, XXX)
-12Z = (12A, XXX)
-13A = (13B, XXX)
-13B = (13C, XXX)
-13C = (13D, XXX)
-13D = (13E, XXX)
-13E = (13Z, XXX)
-13Z = (13A, XXX)
-XXX = (XXX, XXX)
-
-LR
-11A = (11B, XXX)
-11B = (XXX, 11Z)
-11Z = (11B, XXX)
-22A = (22B, XXX)
-22B = (22C, 22C)
-22C = (22Z, 22Z)
-22Z = (22B, 22B)
-XXX = (XXX, XXX)
-
- * 
- * 
- */
 
 pub fn part2() -> String {
-    "Not yet".to_string()
+    let (instructions, nodes) = parse_input();
+
+    let mut period = 1;
+    let mut offset = 0;
+    let starting_nodes: Vec<String> = nodes.keys().filter(|k| k.ends_with("A")).map(|k| k.clone()).collect();
+
+    for n in starting_nodes.iter(){
+        let mut current_node = n.clone();
+        let mut i = 0;
+        let mut step = 0;
+        let mut loop_steps = 0;
+        let mut loop_start = false;
+        loop {
+            if loop_start {
+                loop_steps += 1;
+            } else{
+                step += 1;
+            }
+    
+            let c = instructions.chars().nth(i).unwrap();
+            if c == 'L' {
+                current_node = nodes.get(&current_node).unwrap().child_l.clone();
+            } else if c == 'R' {
+                current_node = nodes.get(&current_node).unwrap().child_r.clone();
+            }
+    
+            // dbg!(current_node.clone(), loop_steps, step, i, c);
+            i = (i + 1) % instructions.len();
+    
+            if current_node.ends_with("Z") {
+                if loop_start {
+                    break;
+                }
+                loop_start = true;
+            }
+        }
+
+        offset = (step - loop_steps).max(offset);
+        period = lcm(period, loop_steps);
+    }
+    
+
+    return (offset + period).to_string();
 }
-
-
-
