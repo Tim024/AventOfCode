@@ -1,6 +1,18 @@
 use std::fs;
 use std::path;
+use std::io::prelude::*;
 
+pub fn write_data_matrix(filepath: &str, data: &Vec<Vec<char>>) {
+    let mut file = std::fs::File::create(filepath).unwrap();
+    let x_max = data.len();
+    let y_max = data[0].len();
+    for x in 0..x_max {
+        for y in 0..y_max {
+            write!(file, "{}", data[x][y]).unwrap(); // Added space after {}
+        }
+        write!(file, "\n").unwrap();
+    }
+}
 
 pub fn read_data(filepath: &str) -> String {
     let path = path::Path::new(filepath);

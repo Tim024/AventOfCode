@@ -1,6 +1,5 @@
 use utils::read_data_matrix;
-use std::fs::File;
-use std::io::prelude::*;
+
 
 fn moveit(current_pipe: char, pipe: char, direction: (isize, isize)) -> bool {
     match direction {
@@ -118,11 +117,11 @@ fn moveit(current_pipe: char, pipe: char, direction: (isize, isize)) -> bool {
 
 static ALL_DIRECTIONS: [(isize, isize); 4] = [(0, 1), (1, 0), (0, -1), (-1, 0)];
 
-fn solve() -> (usize, Vec<Vec<char>>) {
+fn solve() -> (usize, Vec<Vec<char>>, Vec<Vec<char>>) {
     // let data = read_data_matrix("./day10/src/data.input");
     // let starting_position: (isize, isize) = (58, 51);
     let data = read_data_matrix("./day10/src/data.example");
-    let starting_position: (isize, isize) = (0, 4);
+    let starting_position: (isize, isize) = (4, 12);
 
     let mut new_data = data.clone();
 
@@ -179,12 +178,12 @@ fn solve() -> (usize, Vec<Vec<char>>) {
         }
     }
 
-    (steps, new_data)
+    (steps, new_data, data.clone())
 }
 
 pub fn part1() -> String {
 
-    let (steps, _new_data) = solve();
+    let (steps, _new_data, _) = solve();
     let solution = (steps+1)/2;
 
     return solution.to_string();
@@ -192,68 +191,46 @@ pub fn part1() -> String {
 
 pub fn part2() -> String {
 
-    let (steps, new_data) = solve();
+    fn fill_with_O(old_data: Vec<Vec<char>>, new_data: &mut Vec<Vec<char>>, updown: bool, position: (usize, usize), k: &mut usize){
+        let char = new_data[position.0][position.1];
+        let old_char = old_data[position.0][position.1];
+        if char == 'O' || char == 'I' {
+            return;
+        }
+        if char == 'X' {
+            if updown && (old_char == '|' || old_char == 'F' || old_char == '7' || old_char == 'J' || old_char == 'L' || old_char == 'S') {
+                *k += 1;
+                *k %= 2;
+            }
+            if !updown && (old_char == '-' || old_char == 'F' || old_char == '7' || old_char == 'J' || old_char == 'L' || old_char == 'S') {
+                *k += 1;
+                *k %= 2;
+            }
+            return;
+        }
+        if *k == 0 {
+            new_data[position.0][position.1] = 'O';
+        } else {
+            new_data[position.0][position.1] = 'I';
+        }
+    }
+
+    let (steps, new_data, old_data) = solve();
     let mut new_data = new_data;
 
     let x_max = new_data.len();
     let y_max = new_data[0].len();
     // Fill borders with O
     for x in 0..x_max {
-        if new_data[x][0] != 'X' {
-            new_data[x][0] = 'O';
+        let mut k = 0;
+        for y in 0..y_max {
+            fill_with_O(old_data.clone(), &mut new_data, true, (x, y), &mut k);
         }
-        if new_data[x][y_max -1] != 'X' {
-            new_data[x][y_max -1] = 'O';
-        }
-    }
-    for y in 0..y_max {
-        if new_data[0][y] != 'X' {
-            new_data[0][y] = 'O';
-        }
-        if new_data[x_max - 1][y] != 'X' {
-            new_data[x_max - 1][y] = 'O';
-        }
-    }
-
-    for inc in 1..x_max/2 {
-        for x in inc..x_max - inc {
-            // Check if adjacent tiles are filled with O:
-            if new_data[x][inc-1] == 'O' {
-                if new_data[x][inc] != 'X' {
-                    new_data[x][inc] = 'O';
-                }
-            }
-            if new_data[x][y_max - inc] == 'O' {
-                if new_data[x][y_max -1 - inc] != 'X' {
-                    new_data[x][y_max -1 - inc] = 'O';
-                }
-            }
-        }
-        for y in inc..y_max-inc {
-            if new_data[inc-1][y] == 'O' {
-                if new_data[inc][y] != 'X' {
-                    new_data[inc][y] = 'O';
-                }
-            }
-            if new_data[x_max - inc][y] == 'O' {
-                if new_data[x_max - 1 - inc][y] != 'X' {
-                    new_data[x_max - 1 - inc][y] = 'O';
-                }
-            }
-        }
+        // break;
     }
 
     // Count elements that are not O or X:
     let solution = new_data.iter().flatten().filter(|&x| *x != 'O' && *x != 'X').count();
-
-    // Write to file:
-    let mut file = std::fs::File::create("./day10/src/data.output").unwrap();
-    for x in 0..x_max {
-        for y in 0..y_max {
-            write!(file, "{} ", new_data[x][y]).unwrap(); // Added space after {}
-        }
-        write!(file, "\n").unwrap();
-    }
 
 
     return solution.to_string();
